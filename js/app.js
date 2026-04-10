@@ -17,6 +17,12 @@ const dom = {
   songForm: document.getElementById("songForm"),
   songProjectSelect: document.getElementById("songProjectSelect"),
   recordProjectSelect: document.getElementById("recordProjectSelect"),
+  audioInput: document.getElementById("audioInput"),
+  trackCoverInput: document.getElementById("trackCoverInput"),
+  audioDropzone: document.getElementById("audioDropzone"),
+  coverDropzone: document.getElementById("coverDropzone"),
+  audioFilePill: document.getElementById("audioFilePill"),
+  coverPreview: document.getElementById("coverPreview"),
   startRecordingButton: document.getElementById("startRecordingButton"),
   stopRecordingButton: document.getElementById("stopRecordingButton"),
   recordingStatus: document.getElementById("recordingStatus"),
@@ -57,10 +63,15 @@ dom.projectForm.addEventListener("submit", handleCreateProject);
 dom.songForm.addEventListener("submit", handleSaveSong);
 dom.startRecordingButton.addEventListener("click", startRecording);
 dom.stopRecordingButton.addEventListener("click", stopRecording);
+dom.audioInput.addEventListener("change", syncAudioPreview);
+dom.trackCoverInput.addEventListener("change", syncCoverPreview);
 dom.detailAddSongButton.addEventListener("click", () => openSongModal("upload", activeProjectId));
 dom.detailPlayProjectButton.addEventListener("click", playProject);
 dom.songModal.addEventListener("close", resetRecorderUi);
 dom.projectModal.addEventListener("close", () => dom.projectForm.reset());
+
+setupDropzone(dom.audioDropzone, dom.audioInput, syncAudioPreview);
+setupDropzone(dom.coverDropzone, dom.trackCoverInput, syncCoverPreview);
 
 document.querySelectorAll("[data-close-modal]").forEach((button) => {
   button.addEventListener("click", () => {
@@ -202,6 +213,8 @@ function openSongModal(tabName = "upload", projectId = "") {
   }
   resetRecorderUi();
   dom.songForm.reset();
+  syncAudioPreview();
+  syncCoverPreview();
   dom.songProjectSelect.value = projectId || state.projects[0].id;
   dom.recordProjectSelect.value = projectId || state.projects[0].id;
   switchSongTab(tabName);
@@ -365,6 +378,52 @@ function resetRecorderUi() {
   dom.recordingTimer.textContent = "00:00";
   dom.startRecordingButton.disabled = false;
   dom.stopRecordingButton.disabled = true;
+}
+
+function setupDropzone(dropzone, input, onChange) {
+  ["dragenter", "dragover"].forEach((eventName) => {
+    dropzone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dropzone.classList.add("is-dragging");
+    });
+  });
+
+  ["dragleave", "dragend", "drop"].forEach((eventName) => {
+    dropzone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dropzone.classList.remove("is-dragging");
+    });
+  });
+
+  dropzone.addEventListener("drop", (event) => {
+    const files = event.dataTransfer?.files;
+    if (!files?.length) {
+      return;
+    }
+    input.files = files;
+    onChange();
+  });
+}
+
+function syncAudioPreview() {
+  const file = dom.audioInput.files?.[0];
+  dom.audioFilePill.textContent = file ? file.name : "No file selected";
+}
+
+function syncCoverPreview() {
+  const file = dom.trackCoverInput.files?.[0];
+  if (!file) {
+    dom.coverPreview.classList.remove("has-image");
+    dom.coverPreview.style.backgroundImage = "";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    dom.coverPreview.classList.add("has-image");
+    dom.coverPreview.style.backgroundImage = `url("${String(reader.result)}")`;
+  };
+  reader.readAsDataURL(file);
 }
 
 function updateRecordingTimer() {

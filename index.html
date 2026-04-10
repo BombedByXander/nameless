@@ -39,28 +39,11 @@
 
       <main class="page">
         <section class="featured-section">
-          <div class="section-heading">
-            <div>
-              <p class="section-kicker">Library</p>
-              <h2>Your music</h2>
-            </div>
-            <div class="hero-actions">
-              <button class="pill-button secondary" type="button" id="createProjectButton">New project</button>
-              <button class="pill-button primary" type="button" id="recordSongButton">Record</button>
-            </div>
-          </div>
+          <h2 class="library-title">songs</h2>
 
           <div class="featured-grid" id="featuredGrid"></div>
           <div class="empty-state hidden" id="emptyState">
-            <div class="empty-orb"></div>
-            <h3>Nothing uploaded yet</h3>
-            <p>
-              Start with a blank project, upload a finished song, or record right inside the browser.
-            </p>
-            <div class="empty-actions">
-              <button class="pill-button primary" type="button" id="emptyCreateButton">Create project</button>
-              <button class="pill-button secondary" type="button" id="emptyRecordButton">Record now</button>
-            </div>
+            <button class="empty-add-button" type="button" id="emptyCreateButton">+ add</button>
           </div>
         </section>
       </main>
@@ -147,15 +130,31 @@
               <span>Artist</span>
               <input type="text" name="trackArtist" placeholder="prodbyxander" required />
             </label>
-            <label class="field">
-              <span>Cover art</span>
-              <input type="file" name="trackCover" accept="image/*" />
-            </label>
           </div>
-          <label class="field">
-            <span>Audio file</span>
-            <input type="file" name="audio" accept="audio/*" required />
-          </label>
+          <div class="upload-grid">
+            <div class="field">
+              <span>Cover art</span>
+              <label class="dropzone cover-dropzone" id="coverDropzone">
+                <input type="file" name="trackCover" id="trackCoverInput" accept="image/*" />
+                <span class="dropzone-copy">
+                  <strong>Add cover</strong>
+                  <small>Drop image or browse</small>
+                </span>
+                <span class="cover-preview" id="coverPreview"></span>
+              </label>
+            </div>
+            <div class="field">
+              <span>Audio file</span>
+              <label class="dropzone audio-dropzone" id="audioDropzone">
+                <input type="file" name="audio" id="audioInput" accept="audio/*" required />
+                <span class="dropzone-copy">
+                  <strong>Drop track</strong>
+                  <small>MP3, WAV, M4A and more</small>
+                </span>
+                <span class="file-pill" id="audioFilePill">No file selected</span>
+              </label>
+            </div>
+          </div>
         </div>
 
         <div class="tab-panel" id="recordTab">

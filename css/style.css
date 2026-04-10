@@ -168,7 +168,7 @@ button {
 
 .page {
   display: grid;
-  gap: 30px;
+  gap: 18px;
 }
 
 .music-card,
@@ -178,18 +178,15 @@ button {
   -webkit-backdrop-filter: blur(18px);
 }
 
-.section-kicker {
-  margin: 0 0 10px;
-  color: var(--purple-strong);
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.section-heading h2,
+.library-title,
 .modal-header h3 {
   margin: 0;
   letter-spacing: -0.05em;
+}
+
+.library-title {
+  font: 600 1rem "Space Grotesk", sans-serif;
+  text-transform: lowercase;
 }
 
 .detail-copy p,
@@ -199,8 +196,6 @@ button {
   line-height: 1.6;
 }
 
-.hero-actions,
-.empty-actions,
 .detail-toolbar,
 .modal-actions,
 .recorder-actions {
@@ -237,13 +232,6 @@ button {
 
 .featured-section {
   display: grid;
-  gap: 20px;
-}
-
-.section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 16px;
 }
 
@@ -272,31 +260,30 @@ button {
 .featured-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 260px));
-  gap: 24px;
-  justify-content: center;
+  gap: 24px 26px;
+  justify-content: start;
   min-height: 240px;
 }
 
 .music-card {
-  padding: 18px;
-  border-radius: 28px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
-    rgba(15, 13, 22, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  width: 100%;
+  max-width: 264px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .cover-wrap {
   position: relative;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .cover-art,
-.now-playing-cover,
 .detail-cover {
   aspect-ratio: 1;
-  border-radius: 26px;
+  border-radius: 22px;
   background:
     radial-gradient(circle at 50% 24%, rgba(255, 255, 255, 0.2), transparent 22%),
     radial-gradient(circle at 50% 18%, rgba(198, 156, 255, 0.7), transparent 24%),
@@ -306,9 +293,8 @@ button {
 }
 
 .cover-art.has-image,
-.now-playing-cover.has-image,
 .detail-cover.has-image,
-.project-thumb.has-image {
+.cover-preview.has-image {
   background-size: cover;
   background-position: center;
 }
@@ -316,10 +302,10 @@ button {
 .play-button {
   position: absolute;
   right: 12px;
-  bottom: -12px;
+  bottom: 12px;
   width: 48px;
   height: 48px;
-  border-radius: 18px;
+  border-radius: 16px;
   background: rgba(33, 31, 36, 0.95);
   box-shadow: 0 14px 24px rgba(0, 0, 0, 0.4);
 }
@@ -337,17 +323,14 @@ button {
   transform: translateX(2px);
 }
 
-.card-copy h3,
-.now-playing-copy h4 {
+.card-copy h3 {
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
 .card-artist,
 .card-project,
-.now-playing-copy p,
-.project-meta,
-.queue-item p,
 .field span,
 .field input::placeholder,
 .field textarea::placeholder,
@@ -357,7 +340,8 @@ button {
 }
 
 .card-artist {
-  margin: 4px 0 10px;
+  margin: 4px 0 6px;
+  font-size: 0.92rem;
 }
 
 .card-meta-row {
@@ -371,19 +355,7 @@ button {
   display: grid;
   place-items: center;
   text-align: center;
-  min-height: 360px;
-  padding: 24px;
-  border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-  border: 1px solid var(--border);
-}
-
-.empty-orb {
-  width: 120px;
-  height: 120px;
-  border-radius: 999px;
-  margin-bottom: 12px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.14), rgba(155, 92, 255, 0.42), transparent 70%);
+  min-height: 54vh;
 }
 
 .detail-tracklist {
@@ -502,6 +474,122 @@ button {
   resize: vertical;
 }
 
+.upload-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 14px;
+}
+
+.dropzone {
+  position: relative;
+  display: grid;
+  min-height: 220px;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.02);
+}
+
+.dropzone input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dropzone.is-dragging {
+  border-color: rgba(186, 132, 255, 0.9);
+  box-shadow: 0 0 0 1px rgba(186, 132, 255, 0.4), 0 24px 60px rgba(104, 47, 181, 0.22);
+}
+
+.dropzone-copy {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  z-index: 2;
+  display: grid;
+  gap: 4px;
+}
+
+.dropzone-copy strong,
+.file-pill {
+  font-weight: 600;
+}
+
+.dropzone-copy small {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.cover-dropzone::before,
+.audio-dropzone::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 18px;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.cover-preview {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(26, 18, 40, 0.2), rgba(10, 8, 16, 0.4)),
+    radial-gradient(circle at top, rgba(199, 157, 255, 0.45), transparent 28%),
+    linear-gradient(180deg, #1c1030 0%, #4f21a7 44%, #16061e 100%);
+  background-size: cover;
+  background-position: center;
+}
+
+.cover-preview.has-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 30%, rgba(8, 7, 12, 0.78) 100%);
+}
+
+.audio-dropzone {
+  align-items: end;
+  padding: 18px;
+}
+
+.audio-dropzone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 25%, rgba(186, 132, 255, 0.18), transparent 22%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+}
+
+.file-pill {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--muted);
+}
+
+.empty-add-button {
+  min-width: 164px;
+  min-height: 58px;
+  border-radius: 999px;
+  color: white;
+  font-weight: 700;
+  text-transform: lowercase;
+  background: linear-gradient(135deg, rgba(36, 32, 43, 0.96), rgba(58, 34, 82, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 30px var(--glow);
+}
+
 .tab-panel {
   display: none;
 }
@@ -581,6 +669,10 @@ button {
   }
 
   .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .upload-grid {
     grid-template-columns: 1fr;
   }
 
