@@ -42,13 +42,17 @@
           <h2 class="library-title">songs</h2>
 
           <div class="featured-grid" id="featuredGrid"></div>
-          <div class="empty-state hidden" id="emptyState">
-            <button class="empty-add-button" type="button" id="emptyCreateButton">+ add</button>
-          </div>
+          <div class="empty-state hidden" id="emptyState"></div>
         </section>
       </main>
 
-      <button class="floating-add" type="button" id="floatingAddButton">+ Add</button>
+      <div class="floating-add-wrap">
+        <div class="floating-add-menu hidden" id="floatingAddMenu">
+          <button class="floating-menu-item" type="button" id="menuRecordButton">Record song</button>
+          <button class="floating-menu-item" type="button" id="menuProjectButton">New project</button>
+        </div>
+        <button class="floating-add" type="button" id="floatingAddButton">+ Add</button>
+      </div>
     </div>
 
     <dialog class="modal" id="projectModal">

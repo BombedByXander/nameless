@@ -5,10 +5,9 @@ const dom = {
   emptyState: document.getElementById("emptyState"),
   cardTemplate: document.getElementById("cardTemplate"),
   floatingAddButton: document.getElementById("floatingAddButton"),
-  createProjectButton: document.getElementById("createProjectButton"),
-  emptyCreateButton: document.getElementById("emptyCreateButton"),
-  recordSongButton: document.getElementById("recordSongButton"),
-  emptyRecordButton: document.getElementById("emptyRecordButton"),
+  floatingAddMenu: document.getElementById("floatingAddMenu"),
+  menuProjectButton: document.getElementById("menuProjectButton"),
+  menuRecordButton: document.getElementById("menuRecordButton"),
   homeButton: document.getElementById("homeButton"),
   projectModal: document.getElementById("projectModal"),
   songModal: document.getElementById("songModal"),
@@ -52,11 +51,15 @@ let recorderState = {
 stripLegacyDemoContent();
 render();
 
-dom.createProjectButton.addEventListener("click", openProjectModal);
-dom.emptyCreateButton.addEventListener("click", openProjectModal);
-dom.recordSongButton.addEventListener("click", () => openSongModal("record"));
-dom.emptyRecordButton.addEventListener("click", () => openSongModal("record"));
-dom.floatingAddButton.addEventListener("click", () => openSongModal("upload"));
+dom.menuProjectButton.addEventListener("click", () => {
+  closeAddMenu();
+  openProjectModal();
+});
+dom.menuRecordButton.addEventListener("click", () => {
+  closeAddMenu();
+  openSongModal("record");
+});
+dom.floatingAddButton.addEventListener("click", toggleAddMenu);
 dom.homeButton.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
 dom.projectForm.addEventListener("submit", handleCreateProject);
@@ -78,6 +81,12 @@ document.querySelectorAll("[data-close-modal]").forEach((button) => {
     const modalId = button.getAttribute("data-close-modal");
     document.getElementById(modalId)?.close();
   });
+});
+
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".floating-add-wrap")) {
+    closeAddMenu();
+  }
 });
 
 document.querySelectorAll(".tab").forEach((tabButton) => {
@@ -107,23 +116,23 @@ function saveState() {
 }
 
 function stripLegacyDemoContent() {
-  const demoProjects = new Set(["Transcendence", "Fake"]);
-  const onlyDemoProjects =
-    state.projects.length === 2 &&
-    state.projects.every((project) => demoProjects.has(project.name) && !project.description.toLowerCase().includes("real"));
-  const onlyDemoSongs =
-    state.songs.length === 2 &&
-    state.songs.every((song) => demoProjects.has(song.title) || song.title === "fake") &&
-    state.songs.every((song) => !song.audioDataUrl);
+  const demoProjectKeys = new Set(["transcendence|prodbyxander", "fake|wfiskeleton, ja"]);
+  const demoProjectIds = new Set(
+    state.projects
+      .filter((project) => demoProjectKeys.has(`${project.name.toLowerCase()}|${project.artist.toLowerCase()}`))
+      .map((project) => project.id),
+  );
 
-  if (!onlyDemoProjects || !onlyDemoSongs) {
+  if (!demoProjectIds.size) {
     return;
   }
 
-  state.projects = [];
-  state.songs = [];
-  state.queue = [];
-  state.nowPlayingId = null;
+  state.projects = state.projects.filter((project) => !demoProjectIds.has(project.id));
+  state.songs = state.songs.filter((song) => !demoProjectIds.has(song.projectId));
+  state.queue = state.queue.filter((songId) => state.songs.some((song) => song.id === songId));
+  if (state.nowPlayingId && !state.songs.some((song) => song.id === state.nowPlayingId)) {
+    state.nowPlayingId = null;
+  }
   saveState();
 }
 
@@ -202,11 +211,13 @@ function populateProjectSelects() {
 }
 
 function openProjectModal() {
+  closeAddMenu();
   dom.projectForm.reset();
   dom.projectModal.showModal();
 }
 
 function openSongModal(tabName = "upload", projectId = "") {
+  closeAddMenu();
   if (!state.projects.length) {
     openProjectModal();
     return;
@@ -424,6 +435,17 @@ function syncCoverPreview() {
     dom.coverPreview.style.backgroundImage = `url("${String(reader.result)}")`;
   };
   reader.readAsDataURL(file);
+}
+
+function toggleAddMenu(event) {
+  event.stopPropagation();
+  dom.floatingAddMenu.classList.toggle("hidden");
+  dom.floatingAddButton.classList.toggle("is-open");
+}
+
+function closeAddMenu() {
+  dom.floatingAddMenu.classList.add("hidden");
+  dom.floatingAddButton.classList.remove("is-open");
 }
 
 function updateRecordingTimer() {

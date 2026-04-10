@@ -232,7 +232,7 @@ button {
 
 .featured-section {
   display: grid;
-  gap: 16px;
+  gap: 10px;
 }
 
 .tabs {
@@ -352,9 +352,6 @@ button {
 }
 
 .empty-state {
-  display: grid;
-  place-items: center;
-  text-align: center;
   min-height: 54vh;
 }
 
@@ -388,11 +385,35 @@ button {
   align-items: center;
 }
 
-.floating-add {
+.floating-add-wrap {
   position: fixed;
   left: 50%;
   bottom: 28px;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
   transform: translateX(-50%);
+}
+
+.floating-add-menu {
+  display: grid;
+  gap: 10px;
+}
+
+.floating-menu-item {
+  min-width: 172px;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 999px;
+  color: var(--text);
+  font-weight: 600;
+  background: rgba(23, 21, 31, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.34);
+}
+
+.floating-add {
   min-width: 148px;
   min-height: 56px;
   border-radius: 999px;
@@ -401,7 +422,10 @@ button {
   background: linear-gradient(135deg, rgba(36, 32, 43, 0.96), rgba(58, 34, 82, 0.96));
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 30px var(--glow);
-  z-index: 2;
+}
+
+.floating-add.is-open {
+  background: linear-gradient(135deg, rgba(68, 44, 104, 0.98), rgba(95, 54, 141, 0.98));
 }
 
 .modal {
@@ -576,18 +600,6 @@ button {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.07);
   color: var(--muted);
-}
-
-.empty-add-button {
-  min-width: 164px;
-  min-height: 58px;
-  border-radius: 999px;
-  color: white;
-  font-weight: 700;
-  text-transform: lowercase;
-  background: linear-gradient(135deg, rgba(36, 32, 43, 0.96), rgba(58, 34, 82, 0.96));
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 30px var(--glow);
 }
 
 .tab-panel {
