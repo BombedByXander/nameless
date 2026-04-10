@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>[nameless]</title>
+    <meta
+      name="description"
+      content="[nameless] is a sleek music workspace for recording, uploading, organizing, and previewing releases."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <div class="ambient ambient-left"></div>
+      <div class="ambient ambient-right"></div>
+      <div class="noise"></div>
+
+      <header class="topbar">
+        <button class="brand-button" type="button" id="homeButton">[nameless]</button>
+        <div class="topbar-actions">
+          <button class="icon-button" type="button" title="Notifications" aria-label="Notifications">
+            <span class="icon-bell"></span>
+          </button>
+          <button class="icon-button" type="button" title="Profile" aria-label="Profile">
+            <span class="icon-user"></span>
+          </button>
+          <button class="icon-button" type="button" title="Search" aria-label="Search">
+            <span class="icon-search"></span>
+          </button>
+        </div>
+      </header>
+
+      <main class="page">
+        <section class="hero-panel" id="heroPanel">
+          <div class="hero-copy">
+            <p class="eyebrow">Audio workspace</p>
+            <h1>Build releases that feel like they already belong on the front page.</h1>
+            <p class="hero-text">
+              Record ideas, upload finished masters, group them into polished projects, and audition
+              everything in a cinematic dark interface.
+            </p>
+            <div class="hero-actions">
+              <button class="pill-button primary" type="button" id="createProjectButton">New project</button>
+              <button class="pill-button secondary" type="button" id="recordSongButton">Record song</button>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <article class="stat-card">
+              <span class="stat-label">Projects</span>
+              <strong id="statProjects">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Songs</span>
+              <strong id="statSongs">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Duration</span>
+              <strong id="statDuration">0m</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="featured-section">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Featured library</p>
+              <h2>Your latest drops</h2>
+            </div>
+            <div class="view-toggle">
+              <button class="mini-chip active" type="button">Grid</button>
+              <button class="mini-chip" type="button">Studio</button>
+            </div>
+          </div>
+
+          <div class="featured-grid" id="featuredGrid"></div>
+          <div class="empty-state hidden" id="emptyState">
+            <div class="empty-orb"></div>
+            <h3>Nothing uploaded yet</h3>
+            <p>
+              Start with a blank project, upload a finished song, or record right inside the browser.
+            </p>
+            <div class="empty-actions">
+              <button class="pill-button primary" type="button" id="emptyCreateButton">Create project</button>
+              <button class="pill-button secondary" type="button" id="emptyRecordButton">Record now</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-grid">
+          <article class="panel project-panel">
+            <div class="panel-header">
+              <div>
+                <p class="section-kicker">Projects</p>
+                <h3>Workspace</h3>
+              </div>
+              <button class="text-action" type="button" id="quickProjectButton">New project</button>
+            </div>
+            <div class="project-list" id="projectList"></div>
+          </article>
+
+          <article class="panel queue-panel">
+            <div class="panel-header">
+              <div>
+                <p class="section-kicker">Playback</p>
+                <h3>Now playing</h3>
+              </div>
+            </div>
+            <div class="now-playing" id="nowPlayingCard">
+              <div class="now-playing-cover" id="nowPlayingCover"></div>
+              <div class="now-playing-copy">
+                <h4 id="nowPlayingTitle">Select a song</h4>
+                <p id="nowPlayingMeta">Your preview player will appear here.</p>
+              </div>
+            </div>
+            <audio id="audioPlayer" controls preload="metadata"></audio>
+            <div class="queue-list" id="queueList"></div>
+          </article>
+        </section>
+      </main>
+
+      <button class="floating-add" type="button" id="floatingAddButton">+ Add</button>
+    </div>
+
+    <dialog class="modal" id="projectModal">
+      <form class="modal-card" id="projectForm" method="dialog">
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Create</p>
+            <h3>New project</h3>
+          </div>
+          <button class="close-button" type="button" data-close-modal="projectModal">&times;</button>
+        </div>
+
+        <label class="field">
+          <span>Project name</span>
+          <input type="text" name="name" placeholder="Midnight Bloom" required />
+        </label>
+        <label class="field">
+          <span>Artist / handle</span>
+          <input type="text" name="artist" placeholder="prodbyxander" required />
+        </label>
+        <label class="field">
+          <span>Description</span>
+          <textarea name="description" rows="3" placeholder="A note for the vibe, rollout, or recording session."></textarea>
+        </label>
+
+        <div class="field-grid">
+          <label class="field">
+            <span>Project type</span>
+            <select name="type">
+              <option value="auto">Auto detect</option>
+              <option value="single">Single</option>
+              <option value="ep">EP</option>
+              <option value="album">Album</option>
+              <option value="lp">LP</option>
+              <option value="mixtape">Mixtape</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Cover art</span>
+            <input type="file" name="cover" accept="image/*" />
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button class="pill-button secondary" type="button" data-close-modal="projectModal">Cancel</button>
+          <button class="pill-button primary" type="submit">Create project</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="songModal">
+      <form class="modal-card" id="songForm" method="dialog">
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Add music</p>
+            <h3>Upload or record</h3>
+          </div>
+          <button class="close-button" type="button" data-close-modal="songModal">&times;</button>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" type="button" data-tab-target="uploadTab">Upload</button>
+          <button class="tab" type="button" data-tab-target="recordTab">Record</button>
+        </div>
+
+        <div class="tab-panel active" id="uploadTab">
+          <div class="field-grid">
+            <label class="field">
+              <span>Project</span>
+              <select name="projectId" id="songProjectSelect"></select>
+            </label>
+            <label class="field">
+              <span>Track title</span>
+              <input type="text" name="title" placeholder="Transcendence" required />
+            </label>
+          </div>
+          <div class="field-grid">
+            <label class="field">
+              <span>Artist</span>
+              <input type="text" name="trackArtist" placeholder="prodbyxander" required />
+            </label>
+            <label class="field">
+              <span>Cover art</span>
+              <input type="file" name="trackCover" accept="image/*" />
+            </label>
+          </div>
+          <label class="field">
+            <span>Audio file</span>
+            <input type="file" name="audio" accept="audio/*" required />
+          </label>
+        </div>
+
+        <div class="tab-panel" id="recordTab">
+          <label class="field">
+            <span>Project</span>
+            <select name="recordProjectId" id="recordProjectSelect"></select>
+          </label>
+          <label class="field">
+            <span>Track title</span>
+            <input type="text" name="recordTitle" placeholder="Late Night Draft" />
+          </label>
+          <label class="field">
+            <span>Artist</span>
+            <input type="text" name="recordArtist" placeholder="prodbyxander" />
+          </label>
+          <div class="recorder-card">
+            <div class="recorder-copy">
+              <strong id="recordingStatus">Recorder idle</strong>
+              <p id="recordingTimer">00:00</p>
+            </div>
+            <div class="recorder-actions">
+              <button class="pill-button secondary" type="button" id="startRecordingButton">Start recording</button>
+              <button class="pill-button primary" type="button" id="stopRecordingButton" disabled>Stop</button>
+            </div>
+          </div>
+          <audio id="recordingPreview" controls class="hidden"></audio>
+        </div>
+
+        <div class="modal-actions">
+          <button class="pill-button secondary" type="button" data-close-modal="songModal">Close</button>
+          <button class="pill-button primary" type="submit">Save song</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="projectDetailModal">
+      <div class="modal-card detail-card">
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Project view</p>
+            <h3 id="detailTitle">Project</h3>
+          </div>
+          <button class="close-button" type="button" data-close-modal="projectDetailModal">&times;</button>
+        </div>
+        <div class="detail-hero">
+          <div class="detail-cover" id="detailCover"></div>
+          <div class="detail-copy">
+            <span class="detail-badge" id="detailType">Single</span>
+            <p id="detailArtist">Artist</p>
+            <p id="detailDescription">Description</p>
+          </div>
+        </div>
+        <div class="detail-toolbar">
+          <button class="pill-button primary" type="button" id="detailAddSongButton">Add song</button>
+          <button class="pill-button secondary" type="button" id="detailPlayProjectButton">Play project</button>
+        </div>
+        <div class="detail-tracklist" id="detailTracklist"></div>
+      </div>
+    </dialog>
+
+    <template id="cardTemplate">
+      <article class="music-card">
+        <div class="cover-wrap">
+          <div class="cover-art"></div>
+          <button class="play-button" type="button" aria-label="Play track"></button>
+        </div>
+        <div class="card-copy">
+          <h3></h3>
+          <p class="card-artist"></p>
+          <div class="card-meta-row">
+            <span class="card-project"></span>
+            <button class="more-button" type="button" aria-label="Open project">...</button>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script src="./js/app.js"></script>
+  </body>
+</html>
