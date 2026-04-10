@@ -3,13 +3,9 @@ const STORAGE_KEY = "nameless-library-v1";
 const dom = {
   featuredGrid: document.getElementById("featuredGrid"),
   emptyState: document.getElementById("emptyState"),
-  projectList: document.getElementById("projectList"),
-  queueList: document.getElementById("queueList"),
   cardTemplate: document.getElementById("cardTemplate"),
-  audioPlayer: document.getElementById("audioPlayer"),
   floatingAddButton: document.getElementById("floatingAddButton"),
   createProjectButton: document.getElementById("createProjectButton"),
-  quickProjectButton: document.getElementById("quickProjectButton"),
   emptyCreateButton: document.getElementById("emptyCreateButton"),
   recordSongButton: document.getElementById("recordSongButton"),
   emptyRecordButton: document.getElementById("emptyRecordButton"),
@@ -26,12 +22,6 @@ const dom = {
   recordingStatus: document.getElementById("recordingStatus"),
   recordingTimer: document.getElementById("recordingTimer"),
   recordingPreview: document.getElementById("recordingPreview"),
-  nowPlayingCover: document.getElementById("nowPlayingCover"),
-  nowPlayingTitle: document.getElementById("nowPlayingTitle"),
-  nowPlayingMeta: document.getElementById("nowPlayingMeta"),
-  statProjects: document.getElementById("statProjects"),
-  statSongs: document.getElementById("statSongs"),
-  statDuration: document.getElementById("statDuration"),
   detailTitle: document.getElementById("detailTitle"),
   detailCover: document.getElementById("detailCover"),
   detailType: document.getElementById("detailType"),
@@ -53,11 +43,10 @@ let recorderState = {
   recordingBlob: null,
 };
 
-seedLibraryIfEmpty();
+stripLegacyDemoContent();
 render();
 
 dom.createProjectButton.addEventListener("click", openProjectModal);
-dom.quickProjectButton.addEventListener("click", openProjectModal);
 dom.emptyCreateButton.addEventListener("click", openProjectModal);
 dom.recordSongButton.addEventListener("click", () => openSongModal("record"));
 dom.emptyRecordButton.addEventListener("click", () => openSongModal("record"));
@@ -70,7 +59,6 @@ dom.startRecordingButton.addEventListener("click", startRecording);
 dom.stopRecordingButton.addEventListener("click", stopRecording);
 dom.detailAddSongButton.addEventListener("click", () => openSongModal("upload", activeProjectId));
 dom.detailPlayProjectButton.addEventListener("click", playProject);
-dom.audioPlayer.addEventListener("ended", handleTrackEnded);
 dom.songModal.addEventListener("close", resetRecorderUi);
 dom.projectModal.addEventListener("close", () => dom.projectForm.reset());
 
@@ -107,42 +95,24 @@ function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-function seedLibraryIfEmpty() {
-  if (state.projects.length || state.songs.length) {
+function stripLegacyDemoContent() {
+  const demoProjects = new Set(["Transcendence", "Fake"]);
+  const onlyDemoProjects =
+    state.projects.length === 2 &&
+    state.projects.every((project) => demoProjects.has(project.name) && !project.description.toLowerCase().includes("real"));
+  const onlyDemoSongs =
+    state.songs.length === 2 &&
+    state.songs.every((song) => demoProjects.has(song.title) || song.title === "fake") &&
+    state.songs.every((song) => !song.audioDataUrl);
+
+  if (!onlyDemoProjects || !onlyDemoSongs) {
     return;
   }
 
-  const projectA = createProjectObject({
-    name: "Transcendence",
-    artist: "prodbyxander",
-    description: "An atmospheric placeholder project showing how uploaded releases appear.",
-    typePreference: "single",
-    coverDataUrl: buildGradientCover("#7a3cff", "#1a0530"),
-  });
-
-  const projectB = createProjectObject({
-    name: "Fake",
-    artist: "wfiskeleton, ja",
-    description: "A second placeholder card to mirror the reference while real uploads replace it.",
-    typePreference: "single",
-    coverDataUrl: buildGradientCover("#ff8b2d", "#230408"),
-  });
-
-  state.projects.push(projectA, projectB);
-  state.songs.push(
-    createSongObject({
-      projectId: projectA.id,
-      title: "Transcendence",
-      artist: "prodbyxander",
-      coverDataUrl: projectA.coverDataUrl,
-    }),
-    createSongObject({
-      projectId: projectB.id,
-      title: "fake",
-      artist: "wfiskeleton, ja",
-      coverDataUrl: projectB.coverDataUrl,
-    }),
-  );
+  state.projects = [];
+  state.songs = [];
+  state.queue = [];
+  state.nowPlayingId = null;
   saveState();
 }
 
@@ -174,10 +144,6 @@ function createSongObject({ projectId, title, artist, audioDataUrl = "", audioMi
 
 function render() {
   renderFeatured();
-  renderProjects();
-  renderQueue();
-  renderStats();
-  renderNowPlaying();
   populateProjectSelects();
 }
 
@@ -203,101 +169,10 @@ function renderFeatured() {
     title.textContent = song.title;
     artist.textContent = song.artist;
     projectLabel.textContent = project ? `${formatProjectType(getProjectType(project.id))} / ${project.name}` : "Unsorted track";
-    playButton.addEventListener("click", () => playSong(song.id, true));
+    playButton.addEventListener("click", () => openSongAudio(song.id));
     moreButton.addEventListener("click", () => openProjectDetail(song.projectId));
     dom.featuredGrid.appendChild(card);
   });
-}
-
-function renderProjects() {
-  dom.projectList.innerHTML = "";
-  if (!state.projects.length) {
-    dom.projectList.innerHTML = `<div class="project-row"><div><strong>No projects yet</strong><p class="project-meta">Create one to start uploading or recording songs.</p></div></div>`;
-    return;
-  }
-
-  const sortedProjects = [...state.projects].sort((a, b) => b.createdAt - a.createdAt);
-  sortedProjects.forEach((project) => {
-    const trackCount = getSongsForProject(project.id).length;
-    const projectRow = document.createElement("article");
-    projectRow.className = "project-row";
-    const thumb = document.createElement("div");
-    thumb.className = "project-thumb";
-    applyArtwork(thumb, project.coverDataUrl);
-
-    const copy = document.createElement("div");
-    copy.innerHTML = `
-      <div class="project-name-row">
-        <strong>${escapeHtml(project.name)}</strong>
-        <span class="type-chip">${formatProjectType(getProjectType(project.id))}</span>
-      </div>
-      <p class="project-meta">${escapeHtml(project.artist)} / ${trackCount} ${trackCount === 1 ? "track" : "tracks"}</p>
-    `;
-
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = "Open";
-    button.addEventListener("click", () => openProjectDetail(project.id));
-
-    projectRow.append(thumb, copy, button);
-    dom.projectList.appendChild(projectRow);
-  });
-}
-
-function renderQueue() {
-  dom.queueList.innerHTML = "";
-  const queueSongs = state.queue.map((songId) => state.songs.find((song) => song.id === songId)).filter(Boolean);
-
-  if (!queueSongs.length) {
-    dom.queueList.innerHTML = `<div class="queue-item"><div><strong>Queue is empty</strong><p>Add songs from the library or play a full project.</p></div></div>`;
-    return;
-  }
-
-  queueSongs.forEach((song) => {
-    const project = state.projects.find((item) => item.id === song.projectId);
-    const item = document.createElement("article");
-    item.className = "queue-item";
-    item.innerHTML = `
-      <div>
-        <strong>${escapeHtml(song.title)}</strong>
-        <p>${escapeHtml(song.artist)}${project ? ` / ${escapeHtml(project.name)}` : ""}</p>
-      </div>
-    `;
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = "Play";
-    button.addEventListener("click", () => playSong(song.id));
-    item.appendChild(button);
-    dom.queueList.appendChild(item);
-  });
-}
-
-function renderStats() {
-  dom.statProjects.textContent = String(state.projects.length);
-  dom.statSongs.textContent = String(state.songs.length);
-  const totalMinutes = Math.round(state.songs.reduce((sum, song) => sum + (song.duration || 0), 0) / 60);
-  dom.statDuration.textContent = `${totalMinutes}m`;
-}
-
-function renderNowPlaying() {
-  const song = state.songs.find((item) => item.id === state.nowPlayingId);
-  if (!song) {
-    dom.nowPlayingTitle.textContent = "Select a song";
-    dom.nowPlayingMeta.textContent = "Your preview player will appear here.";
-    dom.audioPlayer.removeAttribute("src");
-    dom.audioPlayer.load();
-    applyArtwork(dom.nowPlayingCover, "");
-    return;
-  }
-
-  const project = state.projects.find((item) => item.id === song.projectId);
-  dom.nowPlayingTitle.textContent = song.title;
-  dom.nowPlayingMeta.textContent = `${song.artist}${project ? ` / ${project.name}` : ""}`;
-  applyArtwork(dom.nowPlayingCover, song.coverDataUrl || project?.coverDataUrl);
-  if (song.audioDataUrl && dom.audioPlayer.src !== song.audioDataUrl) {
-    dom.audioPlayer.src = song.audioDataUrl;
-    dom.audioPlayer.play().catch(() => {});
-  }
 }
 
 function populateProjectSelects() {
@@ -529,7 +404,7 @@ function openProjectDetail(projectId) {
       const playButton = document.createElement("button");
       playButton.type = "button";
       playButton.textContent = "Play";
-      playButton.addEventListener("click", () => playSong(song.id, true));
+      playButton.addEventListener("click", () => openSongAudio(song.id));
       track.appendChild(playButton);
       dom.detailTracklist.appendChild(track);
     });
@@ -547,33 +422,22 @@ function playProject() {
     return;
   }
   state.queue = songs.map((song) => song.id);
+  state.nowPlayingId = songs[0].id;
   saveState();
-  renderQueue();
-  playSong(songs[0].id);
+  window.open(songs[0].audioDataUrl, "_blank", "noopener,noreferrer");
 }
 
-function playSong(songId, prioritize = false) {
+function openSongAudio(songId) {
   const song = state.songs.find((item) => item.id === songId);
-  if (!song) {
+  if (!song?.audioDataUrl) {
     return;
   }
   state.nowPlayingId = songId;
-  if (prioritize) {
-    state.queue = [songId, ...state.queue.filter((id) => id !== songId)];
-  } else if (!state.queue.includes(songId)) {
-    state.queue.push(songId);
+  if (!state.queue.includes(songId)) {
+    state.queue.unshift(songId);
   }
   saveState();
-  renderQueue();
-  renderNowPlaying();
-}
-
-function handleTrackEnded() {
-  const currentIndex = state.queue.findIndex((id) => id === state.nowPlayingId);
-  const nextSongId = currentIndex >= 0 ? state.queue[currentIndex + 1] : null;
-  if (nextSongId) {
-    playSong(nextSongId);
-  }
+  window.open(song.audioDataUrl, "_blank", "noopener,noreferrer");
 }
 
 function getSongsForProject(projectId) {
@@ -659,21 +523,4 @@ function getAudioDuration(file) {
       URL.revokeObjectURL(url);
     });
   });
-}
-
-function buildGradientCover(start, end) {
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-      <defs>
-        <linearGradient id="bg" x1="50%" x2="50%" y1="0%" y2="100%">
-          <stop stop-color="${start}" offset="0%"/>
-          <stop stop-color="${end}" offset="100%"/>
-        </linearGradient>
-      </defs>
-      <rect width="640" height="640" fill="url(#bg)"/>
-      <circle cx="320" cy="190" r="90" fill="rgba(255,255,255,0.18)"/>
-      <path d="M110 480C180 360 255 310 320 310s140 50 210 170H110Z" fill="rgba(255,255,255,0.12)"/>
-    </svg>
-  `;
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }

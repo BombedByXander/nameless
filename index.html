@@ -38,44 +38,15 @@
       </header>
 
       <main class="page">
-        <section class="hero-panel" id="heroPanel">
-          <div class="hero-copy">
-            <p class="eyebrow">Audio workspace</p>
-            <h1>Build releases that feel like they already belong on the front page.</h1>
-            <p class="hero-text">
-              Record ideas, upload finished masters, group them into polished projects, and audition
-              everything in a cinematic dark interface.
-            </p>
-            <div class="hero-actions">
-              <button class="pill-button primary" type="button" id="createProjectButton">New project</button>
-              <button class="pill-button secondary" type="button" id="recordSongButton">Record song</button>
-            </div>
-          </div>
-          <div class="hero-stats">
-            <article class="stat-card">
-              <span class="stat-label">Projects</span>
-              <strong id="statProjects">0</strong>
-            </article>
-            <article class="stat-card">
-              <span class="stat-label">Songs</span>
-              <strong id="statSongs">0</strong>
-            </article>
-            <article class="stat-card">
-              <span class="stat-label">Duration</span>
-              <strong id="statDuration">0m</strong>
-            </article>
-          </div>
-        </section>
-
         <section class="featured-section">
           <div class="section-heading">
             <div>
-              <p class="section-kicker">Featured library</p>
-              <h2>Your latest drops</h2>
+              <p class="section-kicker">Library</p>
+              <h2>Your music</h2>
             </div>
-            <div class="view-toggle">
-              <button class="mini-chip active" type="button">Grid</button>
-              <button class="mini-chip" type="button">Studio</button>
+            <div class="hero-actions">
+              <button class="pill-button secondary" type="button" id="createProjectButton">New project</button>
+              <button class="pill-button primary" type="button" id="recordSongButton">Record</button>
             </div>
           </div>
 
@@ -91,37 +62,6 @@
               <button class="pill-button secondary" type="button" id="emptyRecordButton">Record now</button>
             </div>
           </div>
-        </section>
-
-        <section class="dashboard-grid">
-          <article class="panel project-panel">
-            <div class="panel-header">
-              <div>
-                <p class="section-kicker">Projects</p>
-                <h3>Workspace</h3>
-              </div>
-              <button class="text-action" type="button" id="quickProjectButton">New project</button>
-            </div>
-            <div class="project-list" id="projectList"></div>
-          </article>
-
-          <article class="panel queue-panel">
-            <div class="panel-header">
-              <div>
-                <p class="section-kicker">Playback</p>
-                <h3>Now playing</h3>
-              </div>
-            </div>
-            <div class="now-playing" id="nowPlayingCard">
-              <div class="now-playing-cover" id="nowPlayingCover"></div>
-              <div class="now-playing-copy">
-                <h4 id="nowPlayingTitle">Select a song</h4>
-                <p id="nowPlayingMeta">Your preview player will appear here.</p>
-              </div>
-            </div>
-            <audio id="audioPlayer" controls preload="metadata"></audio>
-            <div class="queue-list" id="queueList"></div>
-          </article>
         </section>
       </main>
 
